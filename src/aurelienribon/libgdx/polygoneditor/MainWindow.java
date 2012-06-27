@@ -146,6 +146,7 @@ public class MainWindow extends javax.swing.JFrame {
 				File file = chooser.getSelectedFile();
 				images.clear();
 				images.addAll(ImageModelIo.load(file));
+				imagesList.clearSelection();
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(this, "Cannot load the project, reason is:\n" + ex.getMessage());
 			}

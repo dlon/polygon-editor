@@ -15,9 +15,9 @@ import javax.imageio.ImageIO;
  */
 public class ImageModel extends ChangeableObject {
 	public final File file;
-	public final List<Vector2> vertices = new ArrayList<Vector2>();
+	public final List<ImageModel.Shape> shapes = new ArrayList<ImageModel.Shape>();
 	public final List<Vector2> trianglesVertices = new ArrayList<Vector2>();
-	public boolean closed = false;
+	public final List<Vector2> trianglesUVs = new ArrayList<Vector2>();
 	private final float w, h;
 
 	public ImageModel(File file) throws IOException {
@@ -28,31 +28,32 @@ public class ImageModel extends ChangeableObject {
 		h = img.getHeight();
 	}
 
+	public static class Shape {
+		public final List<Vector2> vertices = new ArrayList<Vector2>();
+		public boolean closed;
+	}
+
 	public void triangulate() {
 		clearTriangles();
-		if (vertices.size() < 3 || !closed) return;
-
 		EarClippingTriangulator ect = new EarClippingTriangulator();
-		List<Vector2> triangles = ect.computeTriangles(vertices);
-		trianglesVertices.addAll(triangles);
+
+		for (ImageModel.Shape shape : shapes) {
+			if (shape.vertices.size() < 3 || !shape.closed) continue;
+			trianglesVertices.addAll(ect.computeTriangles(shape.vertices));
+		}
+
+		if (w > 0.1f && h > 0.1f) {
+			for (Vector2 v : trianglesVertices) trianglesUVs.add(new Vector2(v.x/w, 1-v.y/h));
+		}
 	}
 
 	public void clear() {
-		vertices.clear();
-		trianglesVertices.clear();
-		closed = false;
+		shapes.clear();
+		clearTriangles();
 	}
 
 	public void clearTriangles() {
 		trianglesVertices.clear();
-	}
-
-	public List<Vector2> getUVs() {
-		if (w < 0.1f || h < 0.1f) return new ArrayList<Vector2>();
-		List<Vector2> uvs = new ArrayList<Vector2>();
-		for (Vector2 v : trianglesVertices) {
-			uvs.add(new Vector2(v.x/w, 1-v.y/h));
-		}
-		return uvs;
+		trianglesUVs.clear();
 	}
 }

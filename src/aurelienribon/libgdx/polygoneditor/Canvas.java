@@ -1,6 +1,7 @@
 package aurelienribon.libgdx.polygoneditor;
 
 import aurelienribon.libgdx.ImageModel;
+import aurelienribon.libgdx.ImageModel.Shape;
 import aurelienribon.libgdx.polygoneditor.input.PanZoomInputProcessor;
 import aurelienribon.libgdx.polygoneditor.input.ShapeEditInputProcessor;
 import aurelienribon.tweenengine.BaseTween;
@@ -39,6 +40,8 @@ public class Canvas extends ApplicationAdapter {
 	private Sprite sprite;
 
 	private final List<Label> labels = new ArrayList<Label>();
+	private Label lblModeCreation;
+	private Label lblModeEdition;
 	private Label lblClearVertices;
 	private Label lblInsertVertices;
 	private Label lblRemoveVertices;
@@ -50,6 +53,9 @@ public class Canvas extends ApplicationAdapter {
 	public Vector2 mouseSelectionP1, mouseSelectionP2;
 	public boolean drawTriangles = true, drawBoundingBox = true;
 	public float spriteOpacity = 0.5f;
+
+	public static enum Mode {CREATION, EDITION}
+	public Mode mode = null;
 
 	// -------------------------------------------------------------------------
 	// Public API
@@ -77,10 +83,31 @@ public class Canvas extends ApplicationAdapter {
 
 		int lblH = 25;
 		Color lblC = new Color(0x2A/255f, 0x6B/255f, 0x56/255f, 180/255f);
+		lblModeCreation = new Label(10+lblH, 80, lblH, "Creation", font, lblC, Anchor.TOP_LEFT);
+		lblModeEdition = new Label(10+lblH*2, 80, lblH, "Edition", font, lblC, Anchor.TOP_LEFT);
 		lblClearVertices = new Label(10+lblH*1, 120, lblH, "Clear all points", font, lblC, Anchor.TOP_RIGHT);
 		lblRemoveVertices = new Label(15+lblH*2, 120, lblH, "Remove points", font, lblC, Anchor.TOP_RIGHT);
 		lblInsertVertices = new Label(20+lblH*3, 120, lblH, "Insert points", font, lblC, Anchor.TOP_RIGHT);
-		labels.addAll(Arrays.asList(lblClearVertices, lblInsertVertices, lblRemoveVertices));
+		labels.addAll(Arrays.asList(lblModeCreation, lblModeEdition, lblClearVertices, lblInsertVertices, lblRemoveVertices));
+
+		Label.TouchCallback modeLblCallback = new Label.TouchCallback() {
+			@Override public void touchDown(Label source) {
+				nextMode();
+				lblModeCreation.tiltOff();
+				lblModeEdition.tiltOff();
+			}
+			@Override public void touchEnter(Label source) {
+				lblModeCreation.tiltOn();
+				lblModeEdition.tiltOn();
+			}
+			@Override public void touchExit(Label source) {
+				lblModeCreation.tiltOff();
+				lblModeEdition.tiltOff();
+			}
+		};
+
+		lblModeCreation.setCallback(modeLblCallback);
+		lblModeEdition.setCallback(modeLblCallback);
 
 		lblClearVertices.setCallback(new Label.TouchCallback() {
 			@Override public void touchDown(Label source) {clearPoints();}
@@ -95,6 +122,7 @@ public class Canvas extends ApplicationAdapter {
 		});
 
 		InputMultiplexer im = new InputMultiplexer();
+		im.addProcessor(modeInputProcessor);
 		im.addProcessor(buttonsInputProcessor);
 		im.addProcessor(new PanZoomInputProcessor(this));
 		im.addProcessor(new ShapeEditInputProcessor(this));
@@ -104,6 +132,17 @@ public class Canvas extends ApplicationAdapter {
 			@Override public void onEvent(int type, BaseTween<?> source) {updateButtons();}
 		}).repeat(-1, 0.3f).start(tweenManager);
 	}
+
+	private final InputProcessor modeInputProcessor = new InputAdapter() {
+		@Override
+		public boolean keyDown(int keycode) {
+			if (selectedModel != null) {
+				if (keycode == Input.Keys.TAB) nextMode();
+			}
+
+			return false;
+		}
+	};
 
 	private final InputProcessor buttonsInputProcessor = new InputAdapter() {
 		@Override
@@ -146,7 +185,7 @@ public class Canvas extends ApplicationAdapter {
 			batch.end();
 
 			if (drawBoundingBox) drawer.drawBoundingBox(sprite);
-			drawer.drawModel(selectedModel, selectedPoints, nextPoint, nearestPoint, drawTriangles);
+			drawer.drawModel(selectedModel, selectedPoints, nextPoint, nearestPoint, drawTriangles, mode == Mode.CREATION);
 			drawer.drawMouseSelection(mouseSelectionP1, mouseSelectionP2);
 		}
 
@@ -194,6 +233,8 @@ public class Canvas extends ApplicationAdapter {
 	// -------------------------------------------------------------------------
 
 	private void updateButtons() {
+		if (selectedModel != null && mode == null) setMode(Mode.CREATION);
+		if (selectedModel == null && mode != null) setMode(null);
 		if (isClearEnabled()) lblClearVertices.show(); else lblClearVertices.hide();
 		if (isRemoveEnabled()) lblRemoveVertices.show(); else lblRemoveVertices.hide();
 		if (isInsertEnabled()) lblInsertVertices.show(); else lblInsertVertices.hide();
@@ -208,16 +249,19 @@ public class Canvas extends ApplicationAdapter {
 	private void insertPointsBetweenSelected() {
 		if (!isInsertEnabled()) return;
 		List<Vector2> toAdd = new ArrayList<Vector2>();
-		List<Vector2> vs = selectedModel.vertices;
 
-		for (int i=0; i<vs.size(); i++) {
-			Vector2 p1 = vs.get(i);
-			Vector2 p2 = i != vs.size()-1 ? vs.get(i+1) : vs.get(0);
+		for (Shape shape : selectedModel.shapes) {
+			List<Vector2> vs = shape.vertices;
 
-			if (selectedPoints.contains(p1) && selectedPoints.contains(p2)) {
-				Vector2 p = new Vector2((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
-				vs.add(i+1, p);
-				toAdd.add(p);
+			for (int i=0; i<vs.size(); i++) {
+				Vector2 p1 = vs.get(i);
+				Vector2 p2 = i != vs.size()-1 ? vs.get(i+1) : vs.get(0);
+
+				if (selectedPoints.contains(p1) && selectedPoints.contains(p2)) {
+					Vector2 p = new Vector2((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+					vs.add(i+1, p);
+					toAdd.add(p);
+				}
 			}
 		}
 
@@ -227,10 +271,12 @@ public class Canvas extends ApplicationAdapter {
 
 	private void removeSelectedPoints() {
 		if (!isRemoveEnabled()) return;
-		List<Vector2> vs = selectedModel.vertices;
 
-		for (Vector2 p : selectedPoints) if (vs.contains(p)) vs.remove(p);
-		if (vs.size() < 3) selectedModel.closed = false;
+		for (int i=selectedModel.shapes.size()-1; i>=0; i--) {
+			List<Vector2> vs = selectedModel.shapes.get(i).vertices;
+			for (Vector2 p : selectedPoints) if (vs.contains(p)) vs.remove(p);
+			if (vs.size() < 3) selectedModel.shapes.remove(i);
+		}
 
 		selectedPoints.clear();
 		selectedModel.triangulate();
@@ -238,16 +284,52 @@ public class Canvas extends ApplicationAdapter {
 
 	private boolean isClearEnabled() {
 		if (selectedModel == null) return false;
-		return (selectedModel.vertices.size() > 0);
+		return !selectedModel.shapes.isEmpty();
 	}
 
 	private boolean isInsertEnabled() {
 		if (selectedModel == null) return false;
-		return (selectedPoints.size() > 1);
+		if (selectedPoints.size() <= 1) return false;
+
+		for (Shape shape : selectedModel.shapes) {
+			Vector2 v1 = null;
+			for (Vector2 v2 : shape.vertices) {
+				if (v1 != null && selectedPoints.contains(v2)) return true;
+				v1 = selectedPoints.contains(v2) ? v2 : null;
+			}
+			if (v1 != null && selectedPoints.contains(shape.vertices.get(0))) return true;
+		}
+
+		return false;
 	}
 
 	private boolean isRemoveEnabled() {
 		if (selectedModel == null) return false;
 		return !selectedPoints.isEmpty();
+	}
+
+	private void nextMode() {
+		Mode m = mode == Mode.CREATION ? Mode.EDITION : Mode.CREATION;
+		setMode(m);
+	}
+
+	private void setMode(Mode mode) {
+		this.mode = mode;
+
+		selectedPoints.clear();
+		nextPoint = null;
+		nearestPoint = null;
+
+		if (mode == null) {
+			lblModeCreation.hide();
+			lblModeEdition.hide();
+		} else {
+			lblModeCreation.hideSemi();
+			lblModeEdition.hideSemi();
+			switch (mode) {
+				case CREATION: lblModeCreation.show(); break;
+				case EDITION: lblModeEdition.show(); break;
+			}
+		}
 	}
 }

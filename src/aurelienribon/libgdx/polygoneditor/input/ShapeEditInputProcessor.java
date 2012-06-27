@@ -1,5 +1,7 @@
 package aurelienribon.libgdx.polygoneditor.input;
 
+import aurelienribon.libgdx.ImageModel;
+import aurelienribon.libgdx.ImageModel.Shape;
 import aurelienribon.libgdx.polygoneditor.Canvas;
 import aurelienribon.libgdx.polygoneditor.InputHelper;
 import com.badlogic.gdx.Input;
@@ -15,6 +17,7 @@ import java.util.List;
  */
 public class ShapeEditInputProcessor extends InputAdapter {
 	private final Canvas canvas;
+	private final Shape emptyShape = new Shape() {{closed = true;}};
 	private boolean touchDown = false;
 
 	public ShapeEditInputProcessor(Canvas canvas) {
@@ -26,32 +29,45 @@ public class ShapeEditInputProcessor extends InputAdapter {
 		touchDown = button == Input.Buttons.LEFT;
 		if (!touchDown || canvas.selectedModel == null) return false;
 
-		List<Vector2> vs = canvas.selectedModel.vertices;
-		List<Vector2> ps = canvas.selectedPoints;
+		ImageModel model = canvas.selectedModel;
+		Shape lastShape = model.shapes.isEmpty() ? emptyShape : model.shapes.get(model.shapes.size()-1);
+		List<Vector2> vs = lastShape.vertices;
+		List<Vector2> ss = canvas.selectedPoints;
 		Vector2 p = canvas.screenToWorld(x, y);
 
 		canvas.mouseSelectionP1 = null;
 
-		if (!canvas.selectedModel.closed) {
-			if (vs.size() > 2 && canvas.nearestPoint == vs.get(0)) {
-				canvas.selectedModel.closed = true;
-			} else {
-				canvas.selectedModel.vertices.add(p);
-			}
-		} else {
-			if (canvas.nearestPoint != null) {
-				if (InputHelper.isCtrlDown()) {
-					if (ps.contains(canvas.nearestPoint)) ps.remove(canvas.nearestPoint);
-					else ps.add(canvas.nearestPoint);
-				} else if (!ps.contains(canvas.nearestPoint)) {
-					ps.clear();
-					ps.add(canvas.nearestPoint);
+		switch (canvas.mode) {
+			case CREATION:
+				if (lastShape.closed) {
+					Shape shape = new Shape();
+					shape.vertices.add(p);
+					model.shapes.add(shape);
+				} else {
+					if (vs.size() > 2 && canvas.nearestPoint == vs.get(0)) {
+						lastShape.closed = true;
+						model.triangulate();
+					} else {
+						lastShape.vertices.add(p);
+					}
 				}
-			} else {
-				if (!InputHelper.isCtrlDown()) ps.clear();
-				canvas.mouseSelectionP1 = p;
-				canvas.mouseSelectionP2 = p;
-			}
+				break;
+
+			case EDITION:
+				if (canvas.nearestPoint != null) {
+					if (InputHelper.isCtrlDown()) {
+						if (ss.contains(canvas.nearestPoint)) ss.remove(canvas.nearestPoint);
+						else ss.add(canvas.nearestPoint);
+					} else if (!ss.contains(canvas.nearestPoint)) {
+						ss.clear();
+						ss.add(canvas.nearestPoint);
+					}
+				} else {
+					if (!InputHelper.isCtrlDown()) ss.clear();
+					canvas.mouseSelectionP1 = p;
+					canvas.mouseSelectionP2 = p;
+				}
+				break;
 		}
 
 		return false;
@@ -62,18 +78,26 @@ public class ShapeEditInputProcessor extends InputAdapter {
 		if (!touchDown || canvas.selectedModel == null) return false;
 		touchDown = false;
 
-		if (canvas.mouseSelectionP1 != null && InputHelper.isCtrlDown()) {
-			for (Vector2 p : getPointsInSelection()) {
-				if (canvas.selectedPoints.contains(p)) canvas.selectedPoints.remove(p);
-				else canvas.selectedPoints.add(p);
-			}
-		} else if (canvas.mouseSelectionP1 != null) {
-			canvas.selectedPoints.clear();
-			canvas.selectedPoints.addAll(getPointsInSelection());
+		ImageModel model = canvas.selectedModel;
+		List<Vector2> ss = canvas.selectedPoints;
+
+		switch (canvas.mode) {
+			case EDITION:
+				if (canvas.mouseSelectionP1 != null && InputHelper.isCtrlDown()) {
+					for (Vector2 p : getPointsInSelection()) {
+						if (ss.contains(p)) ss.remove(p);
+						else ss.add(p);
+					}
+				} else if (canvas.mouseSelectionP1 != null) {
+					ss.clear();
+					ss.addAll(getPointsInSelection());
+				}
+
+				canvas.mouseSelectionP1 = null;
+				model.triangulate();
+				break;
 		}
 
-		canvas.mouseSelectionP1 = null;
-		canvas.selectedModel.triangulate();
 		return false;
 	}
 
@@ -81,17 +105,26 @@ public class ShapeEditInputProcessor extends InputAdapter {
 	public boolean touchDragged(int x, int y, int pointer) {
 		if (!touchDown || canvas.selectedModel == null) return false;
 
+		ImageModel model = canvas.selectedModel;
+		List<Vector2> ss = canvas.selectedPoints;
 		Vector2 p = canvas.screenToWorld(x, y);
 
-		if (canvas.nearestPoint != null && !InputHelper.isCtrlDown()) {
-			float dx = p.x - canvas.nearestPoint.x;
-			float dy = p.y - canvas.nearestPoint.y;
-			for (Vector2 pp : canvas.selectedPoints) pp.add(dx, dy);
-		} else {
-			canvas.mouseSelectionP2 = p;
+		switch (canvas.mode) {
+			case CREATION:
+				break;
+
+			case EDITION:
+				if (canvas.nearestPoint != null && !InputHelper.isCtrlDown()) {
+					float dx = p.x - canvas.nearestPoint.x;
+					float dy = p.y - canvas.nearestPoint.y;
+					for (Vector2 pp : ss) pp.add(dx, dy);
+				} else {
+					canvas.mouseSelectionP2 = p;
+				}
+				model.trianglesVertices.clear();
+				break;
 		}
 
-		canvas.selectedModel.trianglesVertices.clear();
 		return false;
 	}
 
@@ -106,7 +139,7 @@ public class ShapeEditInputProcessor extends InputAdapter {
 		canvas.nearestPoint = null;
 		float dist = 10 * canvas.camera.zoom;
 
-		for (Vector2 v : canvas.selectedModel.vertices) {
+		for (Vector2 v : getAllPoints()) {
 			if (v.dst(p) < dist) canvas.nearestPoint = v;
 		}
 
@@ -128,11 +161,18 @@ public class ShapeEditInputProcessor extends InputAdapter {
 				Math.abs(p2.y - p1.y)
 			);
 
-			for (Vector2 p : canvas.selectedModel.vertices) {
+			for (Vector2 p : getAllPoints()) {
 				if (rect.contains(p.x, p.y)) points.add(p);
 			}
 		}
 
+		return Collections.unmodifiableList(points);
+	}
+
+	private List<Vector2> getAllPoints() {
+		ImageModel model = canvas.selectedModel;
+		List<Vector2> points = new ArrayList<Vector2>();
+		for (Shape shape : model.shapes) points.addAll(shape.vertices);
 		return Collections.unmodifiableList(points);
 	}
 }

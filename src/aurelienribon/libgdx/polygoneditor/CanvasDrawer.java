@@ -1,6 +1,7 @@
 package aurelienribon.libgdx.polygoneditor;
 
 import aurelienribon.libgdx.ImageModel;
+import aurelienribon.libgdx.ImageModel.Shape;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
@@ -33,12 +34,13 @@ public class CanvasDrawer {
 	// Public API
 	// -------------------------------------------------------------------------
 
-	public void drawModel(ImageModel model, List<Vector2> selectedPoints, Vector2 nextPoint, Vector2 nearestPoint, boolean drawTriangles) {
+	public void drawModel(ImageModel model, List<Vector2> selectedPoints, Vector2 nextPoint, Vector2 nearestPoint, boolean drawTriangles, boolean creation) {
 		if (model == null) return;
 		drawer.setProjectionMatrix(camera.combined);
 		if (drawTriangles) drawTriangles(model);
-		drawShape(model, nextPoint);
-		drawPoints(model, selectedPoints, nearestPoint, nextPoint);
+		for (Shape shape : model.shapes) drawShape(shape, nextPoint);
+		for (Shape shape : model.shapes) drawPoints(shape, selectedPoints, nearestPoint);
+		if (creation) drawNextPoint(nextPoint);
 	}
 
 	public void drawBoundingBox(Sprite sp) {
@@ -68,12 +70,12 @@ public class CanvasDrawer {
 		drawer.end();
 	}
 
-	private void drawShape(ImageModel model, Vector2 nextPoint) {
+	private void drawShape(Shape shape, Vector2 nextPoint) {
 		Gdx.gl.glLineWidth(2);
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
-		List<Vector2> vs = model.vertices;
+		List<Vector2> vs = shape.vertices;
 		if (vs.isEmpty()) return;
 
 		drawer.begin(ShapeRenderer.ShapeType.Line);
@@ -81,7 +83,7 @@ public class CanvasDrawer {
 
 		for (int i=1; i<vs.size(); i++) drawer.line(vs.get(i).x, vs.get(i).y, vs.get(i-1).x, vs.get(i-1).y);
 
-		if (model.closed) {
+		if (shape.closed) {
 			drawer.setColor(SHAPE_COLOR);
 			drawer.line(vs.get(0).x, vs.get(0).y, vs.get(vs.size()-1).x, vs.get(vs.size()-1).y);
 		} else {
@@ -92,14 +94,14 @@ public class CanvasDrawer {
 		drawer.end();
 	}
 
-	private void drawPoints(ImageModel model, List<Vector2> selectedPoints, Vector2 nearestPoint, Vector2 nextPoint) {
+	private void drawPoints(Shape shape, List<Vector2> selectedPoints, Vector2 nearestPoint) {
 		Gdx.gl.glLineWidth(2);
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
 		float w = 10 * camera.zoom;
 
-		for (Vector2 p : model.vertices) {
+		for (Vector2 p : shape.vertices) {
 			if (p == nearestPoint || (selectedPoints != null && selectedPoints.contains(p))) {
 				drawer.begin(ShapeRenderer.ShapeType.FilledRectangle);
 				drawer.setColor(SHAPE_COLOR);
@@ -112,8 +114,16 @@ public class CanvasDrawer {
 				drawer.end();
 			}
 		}
+	}
 
-		if (!model.closed && nextPoint != null) {
+	private void drawNextPoint(Vector2 nextPoint) {
+		Gdx.gl.glLineWidth(2);
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
+		float w = 10 * camera.zoom;
+
+		if (nextPoint != null) {
 			drawer.begin(ShapeRenderer.ShapeType.Rectangle);
 			drawer.setColor(SHAPE_LASTLINE_COLOR);
 			drawer.rect(nextPoint.cpy().sub(w/2, w/2).x, nextPoint.cpy().sub(w/2, w/2).y, w, w);
