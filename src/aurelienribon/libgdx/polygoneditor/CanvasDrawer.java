@@ -1,7 +1,6 @@
 package aurelienribon.libgdx.polygoneditor;
 
-import aurelienribon.libgdx.ImageModel;
-import aurelienribon.libgdx.ImageModel.Shape;
+import aurelienribon.libgdx.polygoneditor.ImageModel.Shape;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;

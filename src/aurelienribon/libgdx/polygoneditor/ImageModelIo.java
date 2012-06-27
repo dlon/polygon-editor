@@ -1,6 +1,6 @@
-package aurelienribon.libgdx;
+package aurelienribon.libgdx.polygoneditor;
 
-import aurelienribon.libgdx.ImageModel.Shape;
+import aurelienribon.libgdx.polygoneditor.ImageModel.Shape;
 import aurelienribon.utils.io.FilenameHelper;
 import com.badlogic.gdx.math.Vector2;
 import java.io.File;

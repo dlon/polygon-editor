@@ -1,7 +1,6 @@
 package aurelienribon.libgdx.polygoneditor;
 
-import aurelienribon.libgdx.ImageModel;
-import aurelienribon.libgdx.ImageModel.Shape;
+import aurelienribon.libgdx.polygoneditor.ImageModel.Shape;
 import aurelienribon.libgdx.polygoneditor.input.PanZoomInputProcessor;
 import aurelienribon.libgdx.polygoneditor.input.ShapeEditInputProcessor;
 import aurelienribon.tweenengine.BaseTween;
@@ -326,7 +325,7 @@ public class Canvas extends ApplicationAdapter {
 		} else {
 			Shape lastShape = selectedModel.shapes.isEmpty() ? null : selectedModel.shapes.get(selectedModel.shapes.size()-1);
 			if (lastShape != null && !lastShape.closed) selectedModel.shapes.remove(lastShape);
-			
+
 			lblModeCreation.hideSemi();
 			lblModeEdition.hideSemi();
 			switch (mode) {

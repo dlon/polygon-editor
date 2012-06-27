@@ -1,7 +1,5 @@
 package aurelienribon.libgdx.polygoneditor;
 
-import aurelienribon.libgdx.ImageModel;
-import aurelienribon.libgdx.ImageModelIo;
 import aurelienribon.ui.components.ArStyle;
 import aurelienribon.ui.components.PaintedPanel;
 import aurelienribon.ui.css.Style;
@@ -297,7 +295,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/res/gfx/logo.png"))); // NOI18N
 
-        versionLabel.setText("v0.2.0");
+        versionLabel.setText("v0.2.1");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

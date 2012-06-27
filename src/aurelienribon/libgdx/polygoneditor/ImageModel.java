@@ -1,4 +1,4 @@
-package aurelienribon.libgdx;
+package aurelienribon.libgdx.polygoneditor;
 
 import aurelienribon.utils.notifications.ChangeableObject;
 import com.badlogic.gdx.math.EarClippingTriangulator;

@@ -1,7 +1,7 @@
 package aurelienribon.libgdx.polygoneditor.input;
 
-import aurelienribon.libgdx.ImageModel;
-import aurelienribon.libgdx.ImageModel.Shape;
+import aurelienribon.libgdx.polygoneditor.ImageModel;
+import aurelienribon.libgdx.polygoneditor.ImageModel.Shape;
 import aurelienribon.libgdx.polygoneditor.Canvas;
 import aurelienribon.libgdx.polygoneditor.Canvas.Mode;
 import aurelienribon.libgdx.polygoneditor.InputHelper;
