@@ -319,13 +319,14 @@ public class Canvas extends ApplicationAdapter {
 		selectedPoints.clear();
 		nextPoint = null;
 		nearestPoint = null;
-		Shape lastShape = selectedModel.shapes.isEmpty() ? null : selectedModel.shapes.get(selectedModel.shapes.size()-1);
-		if (lastShape != null && !lastShape.closed) selectedModel.shapes.remove(lastShape);
 
 		if (mode == null) {
 			lblModeCreation.hide();
 			lblModeEdition.hide();
 		} else {
+			Shape lastShape = selectedModel.shapes.isEmpty() ? null : selectedModel.shapes.get(selectedModel.shapes.size()-1);
+			if (lastShape != null && !lastShape.closed) selectedModel.shapes.remove(lastShape);
+			
 			lblModeCreation.hideSemi();
 			lblModeEdition.hideSemi();
 			switch (mode) {
