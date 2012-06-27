@@ -3,8 +3,10 @@ package aurelienribon.libgdx.polygoneditor.input;
 import aurelienribon.libgdx.ImageModel;
 import aurelienribon.libgdx.ImageModel.Shape;
 import aurelienribon.libgdx.polygoneditor.Canvas;
+import aurelienribon.libgdx.polygoneditor.Canvas.Mode;
 import aurelienribon.libgdx.polygoneditor.InputHelper;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -141,6 +143,24 @@ public class ShapeEditInputProcessor extends InputAdapter {
 
 		for (Vector2 v : getAllPoints()) {
 			if (v.dst(p) < dist) canvas.nearestPoint = v;
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean keyDown(int keycode) {
+		if (canvas.selectedModel == null) return false;
+
+		ImageModel model = canvas.selectedModel;
+		Shape lastShape = model.shapes.isEmpty() ? emptyShape : model.shapes.get(model.shapes.size()-1);
+
+		switch (keycode) {
+			case Keys.ESCAPE:
+				if (canvas.mode == Mode.CREATION && !lastShape.closed) {
+					model.shapes.remove(lastShape);
+				}
+				break;
 		}
 
 		return false;

@@ -297,7 +297,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/res/gfx/logo.png"))); // NOI18N
 
-        versionLabel.setText("v0.1.0");
+        versionLabel.setText("v0.2.0");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

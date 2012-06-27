@@ -4,7 +4,7 @@
 	<!-- Definitions -->
 	<!-- ****************************************************************** -->
 
-	<property name="version" value="0.1.0" />
+	<property name="version" value="0.2.0" />
 	<property name="name" value="polygon-editor" />
 	<property name="mainClass" value="aurelienribon.libgdx.polygoneditor.Main" />
 
