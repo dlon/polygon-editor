@@ -317,7 +317,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         optionsPanel.setPreferredSize(new java.awt.Dimension(50, 71));
 
-        spriteOpacitySlider.setValue(0.5F);
+        spriteOpacitySlider.setValue(1.0F);
 
         drawTrianglesChk.setSelected(true);
         drawTrianglesChk.setText("Draw triangles");

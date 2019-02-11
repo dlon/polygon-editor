@@ -292,7 +292,7 @@
               <SubComponents>
                 <Component class="aurelienribon.libgdx.polygoneditor.CompactSlider" name="spriteOpacitySlider">
                   <Properties>
-                    <Property name="value" type="float" value="0.5"/>
+                    <Property name="value" type="float" value="1.0"/>
                   </Properties>
                 </Component>
                 <Component class="aurelienribon.libgdx.polygoneditor.CompactCheckBox" name="drawTrianglesChk">
