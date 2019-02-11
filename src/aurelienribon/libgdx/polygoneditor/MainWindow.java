@@ -7,6 +7,7 @@ import aurelienribon.ui.css.swing.SwingStyle;
 import aurelienribon.utils.notifications.AutoListModel;
 import aurelienribon.utils.notifications.ObservableList;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.prefs.Preferences;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -88,6 +90,21 @@ public class MainWindow extends javax.swing.JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 canvas.drawBoundingBox = drawBoundingBoxChk.isSelected();
+            }
+        });
+
+        colorPicker.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                //JColorChooser picker = new JColorChooser();
+                //picker.
+                Color newColor = JColorChooser.showDialog(
+                        null,
+                        "Set background color",
+                        new Color(canvas.bgColor.r, canvas.bgColor.g, canvas.bgColor.b, canvas.bgColor.a)
+                );
+                float rgb[] = newColor.getRGBComponents(null);
+                canvas.bgColor.set(rgb[0], rgb[1], rgb[2], 1f);
             }
         });
 
@@ -244,6 +261,7 @@ public class MainWindow extends javax.swing.JFrame {
         drawTrianglesChk = new aurelienribon.libgdx.polygoneditor.CompactCheckBox();
         jLabel1 = new javax.swing.JLabel();
         drawBoundingBoxChk = new aurelienribon.libgdx.polygoneditor.CompactCheckBox();
+        colorPicker = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Polygon Editor");
@@ -327,6 +345,8 @@ public class MainWindow extends javax.swing.JFrame {
         drawBoundingBoxChk.setSelected(true);
         drawBoundingBoxChk.setText("Draw bounding box");
 
+        colorPicker.setText("Background color");
+
         javax.swing.GroupLayout optionsPanelLayout = new javax.swing.GroupLayout(optionsPanel);
         optionsPanel.setLayout(optionsPanelLayout);
         optionsPanelLayout.setHorizontalGroup(
@@ -339,9 +359,12 @@ public class MainWindow extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(spriteOpacitySlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(optionsPanelLayout.createSequentialGroup()
-                        .addComponent(drawTrianglesChk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(drawBoundingBoxChk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(optionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(optionsPanelLayout.createSequentialGroup()
+                                .addComponent(drawTrianglesChk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(drawBoundingBoxChk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(colorPicker))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -356,6 +379,8 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(optionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(drawTrianglesChk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(drawBoundingBoxChk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(colorPicker)
                 .addContainerGap(32, Short.MAX_VALUE))
         );
 
@@ -375,8 +400,8 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(projectPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
-                .addGap(89, 89, 89)
-                .addComponent(optionsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(57, 57, 57)
+                .addComponent(optionsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -404,6 +429,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addBtn;
+    private javax.swing.JButton colorPicker;
     private javax.swing.JButton deleteBtn;
     private aurelienribon.libgdx.polygoneditor.CompactCheckBox drawBoundingBoxChk;
     private aurelienribon.libgdx.polygoneditor.CompactCheckBox drawTrianglesChk;

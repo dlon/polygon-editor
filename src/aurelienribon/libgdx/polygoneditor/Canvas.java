@@ -37,6 +37,7 @@ public class Canvas extends ApplicationAdapter {
     private BitmapFont font;
     private Sprite infoLabel;
     private Texture bgTex;
+    private static float bgTexOpacity = .2f;
     private Sprite sprite;
 
     private final List<Label> labels = new ArrayList<Label>();
@@ -53,6 +54,7 @@ public class Canvas extends ApplicationAdapter {
     public Vector2 mouseSelectionP1, mouseSelectionP2;
     public boolean drawTriangles = true, drawBoundingBox = true;
     public float spriteOpacity = 1.0f;
+    public Color bgColor = new Color(1f, 1f, 1f, 1f);
 
     public static enum Mode {
         CREATION, EDITION
@@ -196,7 +198,7 @@ public class Canvas extends ApplicationAdapter {
 
         tweenManager.update(Gdx.graphics.getDeltaTime());
 
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, 1f);
         Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
         float w = Gdx.graphics.getWidth();
@@ -206,9 +208,8 @@ public class Canvas extends ApplicationAdapter {
 
         batch.getProjectionMatrix().setToOrtho2D(0, 0, w, h);
         batch.begin();
-        batch.disableBlending();
+        batch.setColor(1, 1, 1, bgTexOpacity);
         batch.draw(bgTex, 0f, 0f, w, h, 0f, 0f, w / tw, h / th);
-        batch.enableBlending();
         batch.end();
 
         if (selectedModel != null) {

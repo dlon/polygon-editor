@@ -102,8 +102,8 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="projectPanel" pref="256" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" pref="89" max="-2" attributes="0"/>
-                      <Component id="optionsPanel" min="-2" pref="90" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="57" max="-2" attributes="0"/>
+                      <Component id="optionsPanel" min="-2" pref="122" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -260,10 +260,15 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="spriteOpacitySlider" max="32767" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="drawTrianglesChk" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="drawBoundingBoxChk" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="drawTrianglesChk" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="drawBoundingBoxChk" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Component id="colorPicker" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
@@ -284,6 +289,8 @@
                               <Component id="drawTrianglesChk" min="-2" max="-2" attributes="0"/>
                               <Component id="drawBoundingBoxChk" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="colorPicker" min="-2" max="-2" attributes="0"/>
                           <EmptySpace pref="32" max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -310,6 +317,11 @@
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Draw bounding box"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JButton" name="colorPicker">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Background color"/>
                   </Properties>
                 </Component>
               </SubComponents>
