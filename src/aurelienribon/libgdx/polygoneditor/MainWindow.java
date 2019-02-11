@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.prefs.Preferences;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -34,6 +35,8 @@ import res.Res;
 public class MainWindow extends javax.swing.JFrame {
 	private final Canvas canvas;
 	private final ObservableList<ImageModel> images = new ObservableList<ImageModel>();
+
+        static String lastDirectory = "polygonEditorLastDirectory";
 
 	public MainWindow(final Canvas canvas, Component canvasCmp) {
 		this.canvas = canvas;
@@ -94,38 +97,42 @@ public class MainWindow extends javax.swing.JFrame {
 	};
 
 	private void add() {
-		JFileChooser chooser = new JFileChooser(".");
-		chooser.setDialogTitle("Choose one or more images");
-		chooser.setMultiSelectionEnabled(true);
-		chooser.setFileFilter(new FileFilter() {
-			@Override public String getDescription() {return "Images (png, jpg)";}
-			@Override public boolean accept(File f) {
-				if (f.isDirectory()) return true;
-				String ext = FilenameUtils.getExtension(f.getName());
-				return ext.equalsIgnoreCase("png") || ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg");
-			}
-		});
+            Preferences prefs = Preferences.userRoot().node(getClass().getName());
+            String path = prefs.get(lastDirectory, System.getProperty("user.dir"));
 
-		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			for (File file : chooser.getSelectedFiles()) {
-				try {
-					ImageModel img = new ImageModel(file);
-					images.add(img);
-					Collections.sort(images, new Comparator<ImageModel>() {
-						@Override public int compare(ImageModel o1, ImageModel o2) {
-							String s1 = o1.file.getPath();
-							String s2 = o2.file.getPath();
-							if (s1.compareToIgnoreCase(s2) < 0) return -1;
-							if (s1.compareToIgnoreCase(s2) > 0) return 1;
-							return 0;
-						}
-					});
-					imagesList.setSelectedValue(img, rootPaneCheckingEnabled);
-				} catch (IOException ex) {
-					JOptionPane.showMessageDialog(this, "Cannot get the canonical path of file:\n" + file.getPath());
-				}
-			}
-		}
+            JFileChooser chooser = new JFileChooser(path);
+            chooser.setDialogTitle("Choose one or more images");
+            chooser.setMultiSelectionEnabled(true);
+            chooser.setFileFilter(new FileFilter() {
+                    @Override public String getDescription() {return "Images (png, jpg)";}
+                    @Override public boolean accept(File f) {
+                            if (f.isDirectory()) return true;
+                            String ext = FilenameUtils.getExtension(f.getName());
+                            return ext.equalsIgnoreCase("png") || ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg");
+                    }
+            });
+
+            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                prefs.put(lastDirectory, chooser.getSelectedFile().getParent());
+                    for (File file : chooser.getSelectedFiles()) {
+                            try {
+                                    ImageModel img = new ImageModel(file);
+                                    images.add(img);
+                                    Collections.sort(images, new Comparator<ImageModel>() {
+                                            @Override public int compare(ImageModel o1, ImageModel o2) {
+                                                    String s1 = o1.file.getPath();
+                                                    String s2 = o2.file.getPath();
+                                                    if (s1.compareToIgnoreCase(s2) < 0) return -1;
+                                                    if (s1.compareToIgnoreCase(s2) > 0) return 1;
+                                                    return 0;
+                                            }
+                                    });
+                                    imagesList.setSelectedValue(img, rootPaneCheckingEnabled);
+                            } catch (IOException ex) {
+                                    JOptionPane.showMessageDialog(this, "Cannot get the canonical path of file:\n" + file.getPath());
+                            }
+                    }
+            }
 	}
 
 	private void delete() {
@@ -135,7 +142,9 @@ public class MainWindow extends javax.swing.JFrame {
 	}
 
 	private void load() {
-		JFileChooser chooser = new JFileChooser(".");
+            Preferences prefs = Preferences.userRoot().node(getClass().getName());
+            String path = prefs.get(lastDirectory, System.getProperty("user.dir"));
+		JFileChooser chooser = new JFileChooser(path);
 		chooser.setDialogTitle("Choose the file to read");
 
 		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -144,6 +153,7 @@ public class MainWindow extends javax.swing.JFrame {
 				images.clear();
 				images.addAll(ImageModelIo.load(file));
 				imagesList.clearSelection();
+                                prefs.put(lastDirectory, chooser.getSelectedFile().getParent());
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(this, "Cannot load the project, reason is:\n" + ex.getMessage());
 			}
@@ -151,13 +161,16 @@ public class MainWindow extends javax.swing.JFrame {
 	}
 
 	private void save() {
-		JFileChooser chooser = new JFileChooser(".");
+            Preferences prefs = Preferences.userRoot().node(getClass().getName());
+            String path = prefs.get(lastDirectory, System.getProperty("user.dir"));
+		JFileChooser chooser = new JFileChooser(path);
 		chooser.setDialogTitle("Choose the file to write or overwrite");
 
 		if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 			try {
 				File file = chooser.getSelectedFile();
 				ImageModelIo.save(file, images);
+                                prefs.put(lastDirectory, chooser.getSelectedFile().getParent());
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(this, "Cannot save the project, reason is:\n" + ex.getMessage());
 			}
@@ -347,6 +360,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addBtn;
     private javax.swing.JButton deleteBtn;
