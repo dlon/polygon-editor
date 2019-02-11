@@ -33,154 +33,195 @@ import res.Res;
  * @author Aurelien Ribon | http://www.aurelienribon.com/
  */
 public class MainWindow extends javax.swing.JFrame {
-	private final Canvas canvas;
-	private final ObservableList<ImageModel> images = new ObservableList<ImageModel>();
 
-        static String lastDirectory = "polygonEditorLastDirectory";
+    private final Canvas canvas;
+    private final ObservableList<ImageModel> images = new ObservableList<ImageModel>();
 
-	public MainWindow(final Canvas canvas, Component canvasCmp) {
-		this.canvas = canvas;
+    static String lastDirectory = "polygonEditorLastDirectory";
 
-		setContentPane(new PaintedPanel());
-		getContentPane().setLayout(new BorderLayout());
-		initComponents();
-		renderPanel.add(canvasCmp, BorderLayout.CENTER);
+    public MainWindow(final Canvas canvas, Component canvasCmp) {
+        this.canvas = canvas;
 
-		addBtn.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {add();}});
-		deleteBtn.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {delete();}});
-		saveBtn.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {save();}});
-		loadBtn.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {load();}});
+        setContentPane(new PaintedPanel());
+        getContentPane().setLayout(new BorderLayout());
+        initComponents();
+        renderPanel.add(canvasCmp, BorderLayout.CENTER);
 
-		spriteOpacitySlider.setChangeListener(new ChangeListener() {
-			@Override public void stateChanged(ChangeEvent e) {canvas.spriteOpacity = spriteOpacitySlider.getValue();}
-		});
-		drawTrianglesChk.setActionListener(new ActionListener() {
-			@Override public void actionPerformed(ActionEvent e) {canvas.drawTriangles = drawTrianglesChk.isSelected();}
-		});
-		drawBoundingBoxChk.setActionListener(new ActionListener() {
-			@Override public void actionPerformed(ActionEvent e) {canvas.drawBoundingBox = drawBoundingBoxChk.isSelected();}
-		});
-
-		imagesList.setModel(new AutoListModel<ImageModel>(images));
-		imagesList.setCellRenderer(emittersListCellRenderer);
-		imagesList.addListSelectionListener(emittersListSelectionListener);
-		emittersListSelectionListener.valueChanged(null);
-
-		SwingStyle.init();
-		ArStyle.init();
-		Style.registerCssClasses(getContentPane(), ".rootPanel");
-		Style.registerCssClasses(renderPanel, ".titledPanel", "#renderPanel");
-		Style.registerCssClasses(projectPanel, ".titledPanel", "#projectPanel");
-		Style.registerCssClasses(optionsPanel, ".titledPanel", "#optionsPanel");
-		Style.registerCssClasses(headerPanel, ".headerPanel");
-		Style.apply(getContentPane(), new Style(Res.getUrl("css/style.css")));
-	}
-
-	private final ListCellRenderer emittersListCellRenderer = new DefaultListCellRenderer() {
-		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-			JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			ImageModel img = (ImageModel) value;
-			label.setText(img.file.getPath());
-			return label;
-		}
-	};
-
-	private final ListSelectionListener emittersListSelectionListener = new ListSelectionListener() {
-		@Override
-		public void valueChanged(ListSelectionEvent e) {
-			ImageModel img = (ImageModel) imagesList.getSelectedValue();
-			canvas.setImage(img);
-			deleteBtn.setEnabled(img != null);
-			saveBtn.setEnabled(img != null);
-		}
-	};
-
-	private void add() {
-            Preferences prefs = Preferences.userRoot().node(getClass().getName());
-            String path = prefs.get(lastDirectory, System.getProperty("user.dir"));
-
-            JFileChooser chooser = new JFileChooser(path);
-            chooser.setDialogTitle("Choose one or more images");
-            chooser.setMultiSelectionEnabled(true);
-            chooser.setFileFilter(new FileFilter() {
-                    @Override public String getDescription() {return "Images (png, jpg)";}
-                    @Override public boolean accept(File f) {
-                            if (f.isDirectory()) return true;
-                            String ext = FilenameUtils.getExtension(f.getName());
-                            return ext.equalsIgnoreCase("png") || ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg");
-                    }
-            });
-
-            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                prefs.put(lastDirectory, chooser.getSelectedFile().getParent());
-                    for (File file : chooser.getSelectedFiles()) {
-                            try {
-                                    ImageModel img = new ImageModel(file);
-                                    images.add(img);
-                                    Collections.sort(images, new Comparator<ImageModel>() {
-                                            @Override public int compare(ImageModel o1, ImageModel o2) {
-                                                    String s1 = o1.file.getPath();
-                                                    String s2 = o2.file.getPath();
-                                                    if (s1.compareToIgnoreCase(s2) < 0) return -1;
-                                                    if (s1.compareToIgnoreCase(s2) > 0) return 1;
-                                                    return 0;
-                                            }
-                                    });
-                                    imagesList.setSelectedValue(img, rootPaneCheckingEnabled);
-                            } catch (IOException ex) {
-                                    JOptionPane.showMessageDialog(this, "Cannot get the canonical path of file:\n" + file.getPath());
-                            }
-                    }
+        addBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                add();
             }
-	}
+        });
+        deleteBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                delete();
+            }
+        });
+        saveBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                save();
+            }
+        });
+        loadBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                load();
+            }
+        });
 
-	private void delete() {
-		ImageModel img = (ImageModel) imagesList.getSelectedValue();
-		images.remove(img);
-		imagesList.clearSelection();
-	}
+        spriteOpacitySlider.setChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                canvas.spriteOpacity = spriteOpacitySlider.getValue();
+            }
+        });
+        drawTrianglesChk.setActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                canvas.drawTriangles = drawTrianglesChk.isSelected();
+            }
+        });
+        drawBoundingBoxChk.setActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                canvas.drawBoundingBox = drawBoundingBoxChk.isSelected();
+            }
+        });
 
-	private void load() {
-            Preferences prefs = Preferences.userRoot().node(getClass().getName());
-            String path = prefs.get(lastDirectory, System.getProperty("user.dir"));
-		JFileChooser chooser = new JFileChooser(path);
-		chooser.setDialogTitle("Choose the file to read");
+        imagesList.setModel(new AutoListModel<ImageModel>(images));
+        imagesList.setCellRenderer(emittersListCellRenderer);
+        imagesList.addListSelectionListener(emittersListSelectionListener);
+        emittersListSelectionListener.valueChanged(null);
 
-		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			try {
-				File file = chooser.getSelectedFile();
-				images.clear();
-				images.addAll(ImageModelIo.load(file));
-				imagesList.clearSelection();
-                                prefs.put(lastDirectory, chooser.getSelectedFile().getParent());
-			} catch (IOException ex) {
-				JOptionPane.showMessageDialog(this, "Cannot load the project, reason is:\n" + ex.getMessage());
-			}
-		}
-	}
+        SwingStyle.init();
+        ArStyle.init();
+        Style.registerCssClasses(getContentPane(), ".rootPanel");
+        Style.registerCssClasses(renderPanel, ".titledPanel", "#renderPanel");
+        Style.registerCssClasses(projectPanel, ".titledPanel", "#projectPanel");
+        Style.registerCssClasses(optionsPanel, ".titledPanel", "#optionsPanel");
+        Style.registerCssClasses(headerPanel, ".headerPanel");
+        Style.apply(getContentPane(), new Style(Res.getUrl("css/style.css")));
+    }
 
-	private void save() {
-            Preferences prefs = Preferences.userRoot().node(getClass().getName());
-            String path = prefs.get(lastDirectory, System.getProperty("user.dir"));
-		JFileChooser chooser = new JFileChooser(path);
-		chooser.setDialogTitle("Choose the file to write or overwrite");
+    private final ListCellRenderer emittersListCellRenderer = new DefaultListCellRenderer() {
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            ImageModel img = (ImageModel) value;
+            label.setText(img.file.getPath());
+            return label;
+        }
+    };
 
-		if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-			try {
-				File file = chooser.getSelectedFile();
-				ImageModelIo.save(file, images);
-                                prefs.put(lastDirectory, chooser.getSelectedFile().getParent());
-			} catch (IOException ex) {
-				JOptionPane.showMessageDialog(this, "Cannot save the project, reason is:\n" + ex.getMessage());
-			}
-		}
-	}
+    private final ListSelectionListener emittersListSelectionListener = new ListSelectionListener() {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            ImageModel img = (ImageModel) imagesList.getSelectedValue();
+            canvas.setImage(img);
+            deleteBtn.setEnabled(img != null);
+            saveBtn.setEnabled(img != null);
+        }
+    };
 
-	// -------------------------------------------------------------------------
-	// Generated stuff
-	// -------------------------------------------------------------------------
+    private void add() {
+        Preferences prefs = Preferences.userRoot().node(getClass().getName());
+        String path = prefs.get(lastDirectory, System.getProperty("user.dir"));
 
+        JFileChooser chooser = new JFileChooser(path);
+        chooser.setDialogTitle("Choose one or more images");
+        chooser.setMultiSelectionEnabled(true);
+        chooser.setFileFilter(new FileFilter() {
+            @Override
+            public String getDescription() {
+                return "Images (png, jpg)";
+            }
+
+            @Override
+            public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                }
+                String ext = FilenameUtils.getExtension(f.getName());
+                return ext.equalsIgnoreCase("png") || ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg");
+            }
+        });
+
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            prefs.put(lastDirectory, chooser.getSelectedFile().getParent());
+            for (File file : chooser.getSelectedFiles()) {
+                try {
+                    ImageModel img = new ImageModel(file);
+                    images.add(img);
+                    Collections.sort(images, new Comparator<ImageModel>() {
+                        @Override
+                        public int compare(ImageModel o1, ImageModel o2) {
+                            String s1 = o1.file.getPath();
+                            String s2 = o2.file.getPath();
+                            if (s1.compareToIgnoreCase(s2) < 0) {
+                                return -1;
+                            }
+                            if (s1.compareToIgnoreCase(s2) > 0) {
+                                return 1;
+                            }
+                            return 0;
+                        }
+                    });
+                    imagesList.setSelectedValue(img, rootPaneCheckingEnabled);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, "Cannot get the canonical path of file:\n" + file.getPath());
+                }
+            }
+        }
+    }
+
+    private void delete() {
+        ImageModel img = (ImageModel) imagesList.getSelectedValue();
+        images.remove(img);
+        imagesList.clearSelection();
+    }
+
+    private void load() {
+        Preferences prefs = Preferences.userRoot().node(getClass().getName());
+        String path = prefs.get(lastDirectory, System.getProperty("user.dir"));
+        JFileChooser chooser = new JFileChooser(path);
+        chooser.setDialogTitle("Choose the file to read");
+
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                File file = chooser.getSelectedFile();
+                images.clear();
+                images.addAll(ImageModelIo.load(file));
+                imagesList.clearSelection();
+                prefs.put(lastDirectory, chooser.getSelectedFile().getParent());
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Cannot load the project, reason is:\n" + ex.getMessage());
+            }
+        }
+    }
+
+    private void save() {
+        Preferences prefs = Preferences.userRoot().node(getClass().getName());
+        String path = prefs.get(lastDirectory, System.getProperty("user.dir"));
+        JFileChooser chooser = new JFileChooser(path);
+        chooser.setDialogTitle("Choose the file to write or overwrite");
+
+        if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                File file = chooser.getSelectedFile();
+                ImageModelIo.save(file, images);
+                prefs.put(lastDirectory, chooser.getSelectedFile().getParent());
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Cannot save the project, reason is:\n" + ex.getMessage());
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Generated stuff
+    // -------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
