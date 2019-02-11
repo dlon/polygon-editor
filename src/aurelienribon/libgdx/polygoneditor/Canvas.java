@@ -46,6 +46,7 @@ public class Canvas extends ApplicationAdapter {
     private Label lblClearVertices;
     private Label lblInsertVertices;
     private Label lblRemoveVertices;
+    private Label lblMoveInsideVertices;
 
     public OrthographicCamera camera;
     public ImageModel selectedModel;
@@ -93,7 +94,8 @@ public class Canvas extends ApplicationAdapter {
         lblClearVertices = new Label(10 + lblH * 1, 120, lblH, "Clear all points", font, lblC, Anchor.TOP_RIGHT);
         lblRemoveVertices = new Label(15 + lblH * 2, 120, lblH, "Remove points", font, lblC, Anchor.TOP_RIGHT);
         lblInsertVertices = new Label(20 + lblH * 3, 120, lblH, "Insert points", font, lblC, Anchor.TOP_RIGHT);
-        labels.addAll(Arrays.asList(lblModeCreation, lblModeEdition, lblClearVertices, lblInsertVertices, lblRemoveVertices));
+        lblMoveInsideVertices = new Label(25 + lblH * 4, 120, lblH, "Move points inside boundary", font, lblC, Anchor.TOP_RIGHT);
+        labels.addAll(Arrays.asList(lblModeCreation, lblModeEdition, lblClearVertices, lblInsertVertices, lblRemoveVertices, lblMoveInsideVertices));
 
         Label.TouchCallback modeLblCallback = new Label.TouchCallback() {
             @Override
@@ -137,6 +139,13 @@ public class Canvas extends ApplicationAdapter {
             @Override
             public void touchDown(Label source) {
                 removeSelectedPoints();
+            }
+        });
+
+        lblMoveInsideVertices.setCallback(new Label.TouchCallback() {
+            @Override
+            public void touchDown(Label source) {
+                moveSelectedPointsInside();
             }
         });
 
@@ -296,6 +305,11 @@ public class Canvas extends ApplicationAdapter {
         } else {
             lblInsertVertices.hide();
         }
+        if (isMoveInsideEnabled()) {
+            lblMoveInsideVertices.show();
+        } else {
+            lblMoveInsideVertices.hide();
+        }
     }
 
     private void clearPoints() {
@@ -352,6 +366,29 @@ public class Canvas extends ApplicationAdapter {
         selectedModel.triangulate();
     }
 
+    private void moveSelectedPointsInside() {
+        if (!isMoveInsideEnabled()) {
+            return;
+        }
+
+
+        if (!selectedPoints.isEmpty()) {
+            for (Vector2 p : selectedPoints) {
+                p.set(Math.max(Math.min(p.x, sprite.getWidth()), 0f), Math.max(Math.min(p.y, sprite.getHeight()), 0f));
+            }
+            selectedPoints.clear();
+        }
+        else {
+            for (int i = selectedModel.shapes.size() - 1; i >= 0; i--) {
+                List<Vector2> vs = selectedModel.shapes.get(i).vertices;
+                for (Vector2 p : vs) {
+                    p.set(Math.max(Math.min(p.x, sprite.getWidth()), 0f), Math.max(Math.min(p.y, sprite.getHeight()), 0f));
+                }
+            }
+        }
+        selectedModel.triangulate();
+    }
+
     private boolean isClearEnabled() {
         if (selectedModel == null) {
             return false;
@@ -388,6 +425,14 @@ public class Canvas extends ApplicationAdapter {
             return false;
         }
         return !selectedPoints.isEmpty();
+    }
+
+    private boolean isMoveInsideEnabled() {
+        /*if (selectedModel == null) {
+            return false;
+        }
+        return !selectedPoints.isEmpty();*/
+        return selectedModel != null;
     }
 
     private void nextMode() {
