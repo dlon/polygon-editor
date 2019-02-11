@@ -70,7 +70,6 @@ public class MainWindow extends javax.swing.JFrame {
 		Style.registerCssClasses(projectPanel, ".titledPanel", "#projectPanel");
 		Style.registerCssClasses(optionsPanel, ".titledPanel", "#optionsPanel");
 		Style.registerCssClasses(headerPanel, ".headerPanel");
-		Style.registerCssClasses(versionLabel, ".versionLabel");
 		Style.apply(getContentPane(), new Style(Res.getUrl("css/style.css")));
 	}
 
@@ -173,7 +172,9 @@ public class MainWindow extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jSplitPane2 = new javax.swing.JSplitPane();
         renderPanel = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
         projectPanel = new javax.swing.JPanel();
         headerPanel = new javax.swing.JPanel();
         jToolBar4 = new javax.swing.JToolBar();
@@ -189,14 +190,23 @@ public class MainWindow extends javax.swing.JFrame {
         drawTrianglesChk = new aurelienribon.libgdx.polygoneditor.CompactCheckBox();
         jLabel1 = new javax.swing.JLabel();
         drawBoundingBoxChk = new aurelienribon.libgdx.polygoneditor.CompactCheckBox();
-        jLabel2 = new javax.swing.JLabel();
-        versionLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Polygon Editor");
 
-        renderPanel.setLayout(new java.awt.BorderLayout());
+        jSplitPane2.setResizeWeight(1.0);
+        jSplitPane2.setMinimumSize(new java.awt.Dimension(107, 3));
+        jSplitPane2.setPreferredSize(new java.awt.Dimension(107, 463));
 
+        renderPanel.setMinimumSize(new java.awt.Dimension(300, 0));
+        renderPanel.setPreferredSize(new java.awt.Dimension(300, 0));
+        renderPanel.setLayout(new java.awt.BorderLayout());
+        jSplitPane2.setLeftComponent(renderPanel);
+
+        jPanel1.setPreferredSize(new java.awt.Dimension(100, 461));
+
+        projectPanel.setMinimumSize(new java.awt.Dimension(50, 54));
+        projectPanel.setPreferredSize(new java.awt.Dimension(50, 173));
         projectPanel.setLayout(new java.awt.BorderLayout());
 
         headerPanel.setLayout(new java.awt.BorderLayout());
@@ -251,6 +261,8 @@ public class MainWindow extends javax.swing.JFrame {
 
         projectPanel.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
+        optionsPanel.setPreferredSize(new java.awt.Dimension(50, 71));
+
         spriteOpacitySlider.setValue(0.5F);
 
         drawTrianglesChk.setSelected(true);
@@ -290,12 +302,31 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(optionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(drawTrianglesChk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(drawBoundingBoxChk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/res/gfx/logo.png"))); // NOI18N
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(projectPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(optionsPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(projectPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                .addGap(89, 89, 89)
+                .addComponent(optionsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
 
-        versionLabel.setText("v0.2.1");
+        jSplitPane2.setRightComponent(jPanel1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -303,31 +334,14 @@ public class MainWindow extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(renderPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(projectPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
-                    .addComponent(optionsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(versionLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel2)))
+                .addComponent(jSplitPane2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(projectPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(optionsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(versionLabel, javax.swing.GroupLayout.Alignment.TRAILING)))
-                    .addComponent(renderPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 463, Short.MAX_VALUE))
+                .addComponent(jSplitPane2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -341,8 +355,9 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel headerPanel;
     private javax.swing.JList imagesList;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JToolBar jToolBar4;
     private javax.swing.JToolBar jToolBar7;
     private javax.swing.JButton loadBtn;
@@ -351,7 +366,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel renderPanel;
     private javax.swing.JButton saveBtn;
     private aurelienribon.libgdx.polygoneditor.CompactSlider spriteOpacitySlider;
-    private javax.swing.JLabel versionLabel;
     // End of variables declaration//GEN-END:variables
 
 }
