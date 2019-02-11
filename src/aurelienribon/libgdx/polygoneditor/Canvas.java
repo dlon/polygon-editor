@@ -268,7 +268,6 @@ public class Canvas extends ApplicationAdapter {
         sprite = new Sprite(tex);
 
         camera.position.set(sprite.getWidth() / 2, sprite.getHeight() / 2, 0);
-        camera.zoom = 1;
         camera.update();
     }
 
